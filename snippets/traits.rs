@@ -1,3 +1,12 @@
+// cargo-deps: chrono = "0.4"
+// You can also leave off the version number, in which case, it's assumed
+// to be "*".  Also, the `cargo-deps` comment *must* be a single-line
+// comment, and it *must* be the first thing in the file, after the
+// hashbang.
+extern crate chrono;
+
+use chrono::Datelike;
+
 struct Album {
     title: String,
     artist: String,
@@ -20,7 +29,7 @@ impl Details for Album {
     }
 
     fn years_since_release(&self) -> u32 {
-        return 2020 - self.release_year;
+        return chrono::Utc::now().year() as u32 - self.release_year;
     }
 }
 
@@ -31,6 +40,8 @@ fn main() {
         release_year: 1992,
         genre: "Heavy Metal".to_string(),
     };
-
+    
+    println!("{}", chrono::Utc::now().year());
     println!("\n{}", album.description());
+    println!("\n{} years since release.", album.years_since_release());
 }
