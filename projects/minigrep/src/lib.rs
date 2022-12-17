@@ -1,11 +1,18 @@
 use std::error::Error;
 use std::fs;
+use std::env;
 
 // Box<dyn Error> means the function will return a type that implements the Error trait
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
   let contents = fs::read_to_string(config.file_path)?;
 
-  for line in search(&config.query, &contents) {
+  let results = if config.ignore_case {
+      search_case_insensitive(&config.query, &contents)
+  } else {
+      search(&config.query, &contents)
+  };
+
+  for line in results {
     println!("{line}");
   }
   
@@ -29,20 +36,21 @@ pub fn search_case_insensitive<'a>(
 ) -> Vec<&'a str> {
   let query = query.to_lowercase();
 
-  let mut result = Vec::new();
+  let mut results = Vec::new();
 
   for line in contents.lines() {
     if line.to_lowercase().contains(&query) {
-      result.push(line);
+      results.push(line);
     }
   }
 
-  result
+  results
 }
 
 pub struct Config {
   pub query: String,
   pub file_path: String,
+  pub ignore_case: bool,
 }
 
 impl Config {
@@ -53,7 +61,13 @@ impl Config {
     let query = args[1].clone();
     let file_path = args[2].clone();
 
-    Ok(Config { query, file_path })
+    let ignore_case = env::var("IGNORE_CASE").is_ok();
+
+    Ok(Config { 
+      query, 
+      file_path,
+      ignore_case
+    })
   }
 }
 
