@@ -14,10 +14,15 @@ fn main() {
 
     println!("You guessed: {}", guess);
 
-    let guess: u32 = match guess.trim().parse() {
+    let guess: i32 = match guess.trim().parse() {
       Ok(num) => num,
       Err(_) => continue,
     };
+
+    if guess < 1 || guess > 100 {
+      println!("The secret number will be between 1 and 10");
+      continue;
+    }
 
     //.expect("Please type a number.");
 
