@@ -119,19 +119,6 @@ where
       assert_eq!(Err("!oops"), tag_opener("<!oops"));
   }
 
-// enter the functor
-/*
-fn map<P, F, A, B>(parser: P, map_fn: F) -> Result<(&str, B), &str>
-where
-  P: Fn(&str) -> Result<(&str, A), &str>,
-  F: Fn(A) -> B,
-{
-  move |input| 
-    parser(input) 
-      .map(|(next_input, result)| (next_input, map_fn(result)))
-}
-*/
-
 type ParseResult<'a, Output> = Result<(&'a str, Output), &'a str>;
 
 trait Parser<'a, Output> {
@@ -155,20 +142,6 @@ where
   move |input|
     parser.parse(input)
       .map(|(next_input, result)| (next_input, map_fn(result)))
-}
-
-fn pair_untidy<'a, P1, P2, R1, R2>(parser1: P1, parser2: P2) -> impl Parser<'a, (R1, R2)>
-where
-  P1: Parser<'a, R1>,
-  P2: Parser<'a, R2>,
-{
-  move |input| match parser1.parse(input) {
-    Ok((next_input, result1)) => match parser2.parse(next_input) {
-      Ok((final_input, result2)) => Ok((final_input, (result1, result2))),
-      Err(err) => Err(err),
-    },
-    Err(err) => Err(err),
-  }
 }
 
 fn pair<'a, P1, P2, R1, R2>(parser1: P1, parser2: P2) -> impl Parser<'a, (R1, R2)>
