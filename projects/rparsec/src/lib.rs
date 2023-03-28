@@ -149,3 +149,35 @@ fn right_combinator() {
   assert_eq!(Err("element"), tag_opener.parse("element"));
   assert_eq!(Err("!element"), tag_opener.parse("<!element"));
 }
+
+fn one_or_more<'a, P, A>(parser: P) -> impl Parser<'a, Vec<A>>
+where
+  P: Parser<'a, A>,
+{
+  move |mut input| {
+    let mut result = Vec::new();
+
+    if let Ok((next_input, first_item)) = parser.parse(input) {
+      input = next_input;
+      result.push(first_item);
+    } else {
+      return Err(input);
+    }
+
+    while let Ok((next_input, next_item)) = parser.parse(input) {
+      input = next_input;
+      result.push(next_item);
+    }
+
+    Ok((input, result))
+  }
+}
+
+#[test]
+fn one_or_more_combinator() {
+  let parser = one_or_more(match_literal("ha"));
+
+  assert_eq!(Ok(("", vec![(),(),()])), parser.parse("hahaha"));
+  assert_eq!(Err("ahah"), parser.parse("ahah"));
+  assert_eq!(Err(""), parser.parse(""));
+}
