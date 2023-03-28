@@ -181,3 +181,27 @@ fn one_or_more_combinator() {
   assert_eq!(Err("ahah"), parser.parse("ahah"));
   assert_eq!(Err(""), parser.parse(""));
 }
+
+fn zero_or_more<'a, P, A>(parser: P) -> impl Parser<'a, Vec<A>>
+where
+  P: Parser<'a, A>,
+{
+  move |mut input| {
+    let mut result = Vec::new();
+
+    while let Ok((next_input, next_item)) = parser.parse(input) {
+      input = next_input;
+      result.push(next_item);
+    }
+
+    Ok((input, result))
+  }
+}
+
+#[test]
+fn zero_or_more_combinator() {
+    let parser = zero_or_more(match_literal("ha"));
+    assert_eq!(Ok(("", vec![(), (), ()])), parser.parse("hahaha"));
+    assert_eq!(Ok(("ahah", vec![])), parser.parse("ahah"));
+    assert_eq!(Ok(("", vec![])), parser.parse(""));
+}
