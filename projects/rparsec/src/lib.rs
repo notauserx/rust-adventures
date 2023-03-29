@@ -23,28 +23,6 @@ fn match_literal<'a>(expected: &'static str) -> impl Parser<'a, ()> {
   }
 }
 
-/*
-#[test]
-fn literal_parser() {
-  let parse_test = match_literal("test parse text");
-  
-  assert_eq!(
-    Ok(((""), ())),
-    parse_test("test parse text")
-  );
-
-  assert_eq!(
-    Ok(((" remaining content"), ())),
-    parse_test("test parse text remaining content")
-  );
-
-  assert_eq!(
-    Err("error content"),
-    parse_test("error content")
-  );
-}
- */
-
 fn identifier(input: &str) -> ParseResult<String> {
   let mut matched = String::new();
   let mut chars = input.chars();
