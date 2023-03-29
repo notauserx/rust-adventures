@@ -225,3 +225,25 @@ fn one_or_more_whitespace<'a>() -> impl Parser<'a, Vec<char>> {
 fn zero_or_more_whitespace<'a>() -> impl Parser<'a, Vec<char>> {
   zero_or_more(whitespace_char())
 }
+
+// quoted string
+fn quoted_string<'a>() -> impl Parser<'a, String> {
+  map(
+    right(
+      match_literal("\""),
+      left(
+        zero_or_more(pred(any_char, |c| *c != '"')),
+        match_literal("\""),
+      ),
+    ),
+    |chars| chars.into_iter().collect(),
+  )
+}
+
+#[test]
+fn quoted_string_parser() {
+  assert_eq!(
+    Ok(("", "Hello Joe!".to_string())),
+    quoted_string().parse("\"Hello Joe!\"")
+  );
+}
